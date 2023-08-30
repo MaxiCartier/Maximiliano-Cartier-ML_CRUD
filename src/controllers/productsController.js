@@ -1,7 +1,7 @@
-const fs = require('fs');
+const{readFileSync, existsSync, writeFileSync, unlinkSync } = require('../data/index');
 const path = require('path');
 const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
-const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+const products = JSON.parse(readFileSync(productsFilePath, 'utf-8'));
 
 const toThousand = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
@@ -10,7 +10,7 @@ const controller = {
 	index: (req, res) => {
 		// Do the magic
 		const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
-		const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+		const products = JSON.parse(readFileSync(productsFilePath, 'utf-8'));
 		return res.render('products', {
 			products,
 			toThousand
@@ -49,7 +49,7 @@ const controller = {
 
 		products.push(newProduct);
 
-		fs.writeFileSync(productsFilePath, JSON.stringify(products, null, 3), 'utf-8');
+		writeFileSync(productsFilePath, JSON.stringify(products, null, 3), 'utf-8');
 		
 		return res.redirect('/products')
 	},
@@ -69,7 +69,7 @@ const controller = {
 		const { name, price, discount, description, category, } = req.body
 		const productsModify = products.map(product => {
 			if (product.id === +req.params.id) {
-				req.file && fs.existsSync(`./public/images/products/${product.image}`) && fs.unlinkSync(`./public/images/products/${product.image}`);
+				req.file && existsSync(`./public/images/products/${product.image}`) && unlinkSync(`./public/images/products/${product.image}`);
 				product.name = name.trim();
 				product.price = +price;
 				product.discount = +discount;
@@ -81,7 +81,7 @@ const controller = {
 
 			return product
 		})
-		fs.writeFileSync(productsFilePath, JSON.stringify(productsModify, null, 3), 'utf-8');
+		writeFileSync(productsFilePath, JSON.stringify(productsModify, null, 3), 'utf-8');
 
 		return res.redirect('/products')
 	},
@@ -91,12 +91,12 @@ const controller = {
 		// Do the magic
 		const productsModify = products.filter((product) => {
 			if(product.id === +req.params.id) {
-				fs.existsSync(`./public/images/products/${product.image}`) && fs.unlinkSync(`./public/images/products/${product.image}`);
+				existsSync(`./public/images/products/${product.image}`) && unlinkSync(`./public/images/products/${product.image}`);
 			}
 			return product.id !== +req.params.id;
 		});
 	
-		fs.writeFileSync(productsFilePath, JSON.stringify(productsModify, null, 3), 'utf-8');
+		writeFileSync(productsFilePath, JSON.stringify(productsModify, null, 3), 'utf-8');
 		return res.redirect('/products')
 	}
 };
